@@ -1,5 +1,5 @@
 import type React from "react"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
@@ -14,8 +14,13 @@ export const metadata: Metadata = {
     "Capacite-se com os melhores treinamentos offshore do Brasil. Cursos de segurança, operações e certificações reconhecidas no mercado.",
   keywords: "treinamentos offshore, cursos marítimos, segurança offshore, CBSP, certificação offshore",
   authors: [{ name: "Nauta Treinamentos" }],
-  viewport: "width=device-width, initial-scale=1",
-    generator: 'v0.app'
+  generator: "v0.app",
+}
+
+// Viewport: exportado separadamente conforme exigência do Next.js 14+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 }
 
 // RootLayout: Estrutura HTML básica

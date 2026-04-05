@@ -12,7 +12,7 @@ import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Navbar from "@/components/layout/navbar"
 import Footer from "@/components/layout/footer"
-import { BookOpen, Users, Award, BarChart3, Settings, FileText } from "lucide-react"
+import { BookOpen, Users, Award, PenLine, Settings, FileText } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 
 export default function PainelPage() {
@@ -62,10 +62,10 @@ export default function PainelPage() {
       bgColor: "bg-amber-50",
     },
     {
-      title: "Relatórios",
-      description: "Visualizar estatísticas e relatórios",
-      icon: BarChart3,
-      href: "/admin/relatorios",
+      title: "Assinaturas",
+      description: "Gerenciar assinaturas digitais de responsáveis e instrutores",
+      icon: PenLine,
+      href: "/admin/assinaturas",
       color: "text-purple-600",
       bgColor: "bg-purple-50",
     },

@@ -98,6 +98,10 @@ export default function CursoPage() {
   } | null>(null)
   const [quizAttemptsMade, setQuizAttemptsMade] = useState(0)
 
+  // ESTADO DE IDIOMA
+  // Controla em qual idioma o aluno visualiza o conteúdo do curso
+  const [idioma, setIdioma] = useState<"PT" | "EN">("PT")
+
   // ESTADOS MOBILE
   const [isMobile, setIsMobile] = useState(false)
 
@@ -460,16 +464,45 @@ export default function CursoPage() {
           </div>
         </div>
 
-        {/* Progresso (só desktop) */}
-        {!isMobile && (
-          <div className="flex items-center gap-4">
-            <div className="text-sm">
-              <span className="text-slate-300">Progresso: </span>
-              <span className="font-medium">{overallProgress}%</span>
-            </div>
-            <Progress value={overallProgress} className="w-32 h-2 bg-slate-700 [&>div]:bg-teal-400" />
+        {/* Área direita do header: seletor de idioma + progresso */}
+        <div className="flex items-center gap-4 flex-shrink-0">
+          {/* SELETOR DE IDIOMA: alterna entre PT e EN */}
+          <div className="flex items-center bg-slate-800 rounded-lg p-1 gap-1">
+            <button
+              onClick={() => setIdioma("PT")}
+              className={`text-xs font-semibold px-3 py-1 rounded-md transition-colors ${
+                idioma === "PT"
+                  ? "bg-teal-500 text-white"
+                  : "text-slate-300 hover:text-white"
+              }`}
+              aria-label="Alternar para Português"
+            >
+              PT
+            </button>
+            <button
+              onClick={() => setIdioma("EN")}
+              className={`text-xs font-semibold px-3 py-1 rounded-md transition-colors ${
+                idioma === "EN"
+                  ? "bg-teal-500 text-white"
+                  : "text-slate-300 hover:text-white"
+              }`}
+              aria-label="Switch to English"
+            >
+              EN
+            </button>
           </div>
-        )}
+
+          {/* Progresso (só desktop) */}
+          {!isMobile && (
+            <div className="flex items-center gap-3">
+              <div className="text-sm">
+                <span className="text-slate-300">Progresso: </span>
+                <span className="font-medium">{overallProgress}%</span>
+              </div>
+              <Progress value={overallProgress} className="w-32 h-2 bg-slate-700 [&>div]:bg-teal-400" />
+            </div>
+          )}
+        </div>
       </header>
 
       {/* LAYOUT PRINCIPAL */}
@@ -489,12 +522,18 @@ export default function CursoPage() {
                     <div className="text-teal-600 flex-shrink-0">{getLessonIcon(currentLesson)}</div>
                     <div className="flex-1">
                       <h2 className="text-2xl font-bold text-neutral-800 mb-2">{currentLesson.title}</h2>
-                      {currentLesson.duration && (
-                        <div className="flex items-center text-sm text-neutral-500">
-                          <Clock className="h-4 w-4 mr-1" />
-                          {currentLesson.duration}
-                        </div>
-                      )}
+                      <div className="flex items-center gap-3">
+                        {currentLesson.duration && (
+                          <div className="flex items-center text-sm text-neutral-500">
+                            <Clock className="h-4 w-4 mr-1" />
+                            {currentLesson.duration}
+                          </div>
+                        )}
+                        {/* Badge indicando o idioma selecionado pelo aluno */}
+                        <span className="text-xs font-semibold bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full">
+                          {idioma === "PT" ? "Português" : "English"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>

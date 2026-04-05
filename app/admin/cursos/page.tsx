@@ -6,19 +6,11 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import Navbar from "@/components/layout/navbar"
 import Footer from "@/components/layout/footer"
-import { Edit, Trash2, Plus, BookOpen } from "lucide-react"
+import { Edit, Trash2, Plus, BookOpen, AlertTriangle } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { courses, type Course } from "@/lib/data"
 
@@ -26,7 +18,10 @@ export default function GerenciarCursosPage() {
   const router = useRouter()
   const { user, isAdmin } = useAuth()
   const [cursosList, setCursosList] = useState<Course[]>(courses)
+  // Curso pendente de exclusão no modal destrutivo
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null)
+  // Valor digitado pelo usuário no campo de confirmação destrutiva
+  const [deleteConfirmText, setDeleteConfirmText] = useState("")
 
   useEffect(() => {
     if (!user) {
@@ -36,15 +31,24 @@ export default function GerenciarCursosPage() {
     }
   }, [user, isAdmin, router])
 
+  // Abre o modal destrutivo e limpa o campo de confirmação
   const handleDeleteClick = (course: Course) => {
     setCourseToDelete(course)
+    setDeleteConfirmText("")
   }
 
+  // Fecha o modal sem excluir, limpando o campo
+  const handleCancelDelete = () => {
+    setCourseToDelete(null)
+    setDeleteConfirmText("")
+  }
+
+  // Executa a exclusão após confirmação do texto "excluir"
   const confirmDelete = () => {
-    if (courseToDelete) {
+    if (courseToDelete && deleteConfirmText.toLowerCase() === "excluir") {
       setCursosList(cursosList.filter((c) => c.id !== courseToDelete.id))
       setCourseToDelete(null)
-      console.log(`Curso ${courseToDelete.name} deletado`)
+      setDeleteConfirmText("")
     }
   }
 
@@ -165,23 +169,77 @@ export default function GerenciarCursosPage() {
       </main>
       <Footer />
 
-      <AlertDialog open={!!courseToDelete} onOpenChange={() => setCourseToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
-            <AlertDialogDescription>
-              Você tem certeza que deseja deletar o curso <strong>{courseToDelete?.name}</strong>? Esta ação não pode
-              ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700 focus:ring-red-600">
-              Confirmar Exclusão
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* ——————————————————————————————
+          MODAL DESTRUTIVO DE EXCLUSÃO DE CURSO
+          O usuário deve digitar "excluir" para habilitar o botão de confirmação.
+          Garante que a ação foi intencional antes de remover permanentemente.
+      —————————————————————————————— */}
+      {courseToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+
+            {/* Cabeçalho com ícone de alerta */}
+            <div className="p-6 border-b">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                </div>
+                <h2 className="text-xl font-bold text-neutral-900">Excluir Curso</h2>
+              </div>
+              <p className="text-sm text-neutral-700">
+                Você está prestes a excluir permanentemente o curso:{" "}
+                <strong className="text-neutral-900">&quot;{courseToDelete.name}&quot;</strong>.
+              </p>
+              <p className="text-sm text-red-600 mt-2 font-medium">
+                Esta ação é irreversível e não pode ser desfeita.
+              </p>
+            </div>
+
+            {/* Campo de confirmação: usuário deve digitar "excluir" */}
+            <div className="p-6 space-y-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm text-red-700">
+                  Para confirmar, digite{" "}
+                  <strong className="font-mono bg-red-100 px-1 rounded">excluir</strong>{" "}
+                  no campo abaixo:
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="deleteConfirm">Confirmação</Label>
+                <Input
+                  id="deleteConfirm"
+                  placeholder="Digite excluir para confirmar"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  className={deleteConfirmText.toLowerCase() === "excluir" ? "border-red-400" : ""}
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+
+            {/* Botões de ação */}
+            <div className="flex gap-3 p-6 border-t bg-slate-50 rounded-b-xl">
+              {/* Cancelar: fecha sem excluir */}
+              <Button
+                variant="outline"
+                className="flex-1 bg-transparent"
+                onClick={handleCancelDelete}
+              >
+                Cancelar
+              </Button>
+              {/* Confirmar: habilitado somente quando texto = "excluir" */}
+              <Button
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={deleteConfirmText.toLowerCase() !== "excluir"}
+                onClick={confirmDelete}
+              >
+                Excluir Permanentemente
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
