@@ -99,7 +99,7 @@ const ASSINATURAS_MOCK: Assinatura[] = [
 // ============================================
 export default function AssinaturasPage() {
   const router = useRouter()
-  const { user, isAdmin } = useAuth()
+  const { user, isAdmin, isLoading } = useAuth()
 
   // Lista de assinaturas cadastradas
   const [assinaturas, setAssinaturas] = useState<Assinatura[]>(ASSINATURAS_MOCK)
@@ -116,17 +116,18 @@ export default function AssinaturasPage() {
   // Referência ao input de upload de imagem
   const inputImagemRef = useRef<HTMLInputElement>(null)
 
-  // Proteção de rota: redireciona se não for admin
+  // Proteção de rota: aguarda hidratação antes de redirecionar
   useEffect(() => {
+    if (isLoading) return
     if (!user) {
       router.push("/login")
     } else if (!isAdmin) {
       router.push("/")
     }
-  }, [user, isAdmin, router])
+  }, [user, isAdmin, isLoading, router])
 
-  // Não renderiza enquanto autenticação não confirma admin
-  if (!user || !isAdmin) return null
+  // Aguarda carregamento do auth antes de renderizar conteúdo protegido
+  if (isLoading || !user || !isAdmin) return null
 
   // ——————————————————————————————
   // HANDLERS DO FORMULÁRIO

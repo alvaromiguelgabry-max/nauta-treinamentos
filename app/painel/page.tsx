@@ -17,21 +17,20 @@ import { useAuth } from "@/lib/auth-context"
 
 export default function PainelPage() {
   const router = useRouter()
-  const { user, isAdmin } = useAuth()
+  const { user, isAdmin, isLoading } = useAuth()
 
-  // Proteção: Redireciona usuários não autorizados
+  // Proteção: aguarda a hidratação do auth antes de redirecionar
   useEffect(() => {
+    if (isLoading) return
     if (!user) {
-      // Não está logado: vai para login
       router.push("/login")
     } else if (!isAdmin) {
-      // Está logado mas não é admin: volta para home
       router.push("/")
     }
-  }, [user, isAdmin, router])
+  }, [user, isAdmin, isLoading, router])
 
-  // Se não for admin, não renderiza nada (evita flash de conteúdo)
-  if (!user || !isAdmin) {
+  // Aguarda carregamento ou redireciona — não renderiza conteúdo protegido
+  if (isLoading || !user || !isAdmin) {
     return null
   }
 

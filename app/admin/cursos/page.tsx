@@ -16,20 +16,17 @@ import { courses, type Course } from "@/lib/data"
 
 export default function GerenciarCursosPage() {
   const router = useRouter()
-  const { user, isAdmin } = useAuth()
+  const { user, isAdmin, isLoading } = useAuth()
   const [cursosList, setCursosList] = useState<Course[]>(courses)
-  // Curso pendente de exclusão no modal destrutivo
-  const [courseToDelete, setCourseToDelete] = useState<Course | null>(null)
-  // Valor digitado pelo usuário no campo de confirmação destrutiva
-  const [deleteConfirmText, setDeleteConfirmText] = useState("")
 
   useEffect(() => {
+    if (isLoading) return
     if (!user) {
       router.push("/login")
     } else if (!isAdmin) {
       router.push("/")
     }
-  }, [user, isAdmin, router])
+  }, [user, isAdmin, isLoading, router])
 
   // Abre o modal destrutivo e limpa o campo de confirmação
   const handleDeleteClick = (course: Course) => {
@@ -52,7 +49,7 @@ export default function GerenciarCursosPage() {
     }
   }
 
-  if (!user || !isAdmin) {
+  if (isLoading || !user || !isAdmin) {
     return null
   }
 

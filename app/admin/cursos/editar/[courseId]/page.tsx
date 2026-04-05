@@ -159,7 +159,7 @@ const INSTRUCTORS_MOCK: InstructorOption[] = [
 export default function EditarCursoPage() {
   const params = useParams()
   const router = useRouter()
-  const { user, isAdmin } = useAuth()
+  const { user, isAdmin, isLoading } = useAuth()
   const courseId = params.courseId as string
   const isNewCourse = courseId === "novo"
 
@@ -190,12 +190,13 @@ export default function EditarCursoPage() {
   // Indica se há alterações não salvas
   const [unsavedChanges, setUnsavedChanges] = useState(false)
 
-  // Proteção de rota
+  // Proteção de rota: aguarda hidratação antes de redirecionar
   useEffect(() => {
+    if (isLoading) return
     if (!user || !isAdmin) {
       router.push("/")
     }
-  }, [user, isAdmin, router])
+  }, [user, isAdmin, isLoading, router])
 
   // Carrega dados do curso ao editar um existente
   useEffect(() => {
@@ -359,7 +360,7 @@ export default function EditarCursoPage() {
     window.open("/curso-vitrine?id=preview", "_blank")
   }
 
-  if (!user || !isAdmin) {
+  if (isLoading || !user || !isAdmin) {
     return null
   }
 
