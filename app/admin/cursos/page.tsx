@@ -18,6 +18,10 @@ export default function GerenciarCursosPage() {
   const router = useRouter()
   const { user, isAdmin, isLoading } = useAuth()
   const [cursosList, setCursosList] = useState<Course[]>(courses)
+  // Curso pendente de exclusão no modal destrutivo
+  const [courseToDelete, setCourseToDelete] = useState<Course | null>(null)
+  // Valor digitado pelo usuário no campo de confirmação destrutiva
+  const [deleteConfirmText, setDeleteConfirmText] = useState("")
 
   useEffect(() => {
     if (isLoading) return
